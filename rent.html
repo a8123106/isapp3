@@ -9,15 +9,21 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
-
+        function buttonRent() {
+            var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('', '', '', ) `
+        }
     </script>
 
 </head>
 
 <body>
     <h1>返却</h1>
-
-
+    <div style="text-align: right;">
+        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
+        <a href="javascript:logout()">logout</a>
+    </div>
+    <hr>
+    <button onclick id='rent'>OK</button>
 
 
 
