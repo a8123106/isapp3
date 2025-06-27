@@ -9,21 +9,21 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
-        osql.requireLogin();
+        // osql.requireLogin();
 
-        $(document).ready(async function () {
-            var me = await osql.getMe();
-            console.log(me);
-            var sql = `insert ignore into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
-            await osql.connect(sql);
+        // $(document).ready(async function () {
+        //     var me = await osql.getMe();
+        //     console.log(me);
+        //     var sql = `insert ignore into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
+        //     await osql.connect(sql);
 
-            document.getElementById('firstname').innerHTML = me.fname;
-            document.getElementById('lastname').innerHTML = me.lname;
-        });
+        //     document.getElementById('firstname').innerHTML = me.fname;
+        //     document.getElementById('lastname').innerHTML = me.lname;
+        // });
 
-        function logout() {
-            osql.logout();
-        }
+        // function logout() {
+        //     osql.logout();
+        // }
 
 
     </script>
