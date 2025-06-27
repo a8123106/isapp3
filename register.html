@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script>
+        osql.requireLogin();
+
+        $(document).ready(async function () {
+            var me = await osql.getMe();
+            console.log(me);
+            var sql = `insert ignore into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
+            await osql.connect(sql);
+
+            document.getElementById('firstname').innerHTML = me.fname;
+            document.getElementById('lastname').innerHTML = me.lname;
+        });
+
+        function logout() {
+            osql.logout();
+        }
+
+        function register() {
+            var ISBNcode = document.getElementById('tf1').innerHTML
+            var title = document.getElementById('tf2').innerHTML
+            var author = document.getElementById('tf3').innerHTML
+            var pubulisher = document.getElementById('tf4').innerHTML
+            var pubulisher = document.getElementById('tf5').innerHTML
+            var removeable = document.getElementById('tf6').innerHTML
+
+            var sql = 'select * from Rooms;';
+        }
+    </script>
+
+</head>
+
+<body>
+    <h1>登録</h1>
+    <div style="text-align: right;">
+        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
+        <a href="javascript:logout()">logout</a>
+    </div>
+    <hr>
+
+
+    ISBNCode: <input id='tf1' type='text'><br>
+    title: <input id='tf2' type='text'><br>
+    author: <input id='tf3' type='text'><br>
+    pubulisher: <input id='tf4' type='text'><br>
+    pubulished: <input id='tf5' type='text'><br>
+    removeable: <input id='tf6' type='text'><br>
+
+    <button id='register'>登録</button>
+
+
+</body>
+
+</html>
