@@ -3,32 +3,24 @@
 <html>
 
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script type="text/javascript" src="../lib/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/osql.js"></script>
+
     <script>
-        osql.requireLogin();
-
-        $(document).ready(async function () {
-            var me = await osql.getMe();
-            console.log(me);
-            var sql = `insert ignore into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
-            await osql.connect(sql);
-
-            document.getElementById('firstname').innerHTML = me.fname;
-            document.getElementById('lastname').innerHTML = me.lname;
-        });
-
-        function logout() {
-            osql.logout();
-        }
 
         function register() {
-            var ISBNcode = document.getElementById('tf1').innerHTML
-            var title = document.getElementById('tf2').innerHTML
-            var author = document.getElementById('tf3').innerHTML
-            var pubulisher = document.getElementById('tf4').innerHTML
-            var pubulisher = document.getElementById('tf5').innerHTML
-            var removeable = document.getElementById('tf6').innerHTML
+            var ISBNcode = document.getElementById('tf1').innerHTML;
+            var title = document.getElementById('tf2').innerHTML;
+            var author = document.getElementById('tf3').innerHTML;
+            var pubulisher = document.getElementById('tf4').innerHTML;
+            var pubulished = document.getElementById('tf5').innerHTML;
+            var removeable = document.getElementById('tf6').innerHTML;
 
-            var sql = 'select * from Rooms;';
+            var sql = `insert into Books (ISBNcode, title, author, pubulisher, pubulished, removeable,registered) values("${ISBNcode}", "${title}", "${author}", "${pubulisher}", "${pubulished}", now());`;
+            var objects = await osql.connect(sql);
+            console.log(objects);
         }
     </script>
 
