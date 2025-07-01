@@ -30,16 +30,19 @@
 
 
         });
-        function init() {
+        async function init() {
             //     var name = sessionStorage.getItem('username');
             //     document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
-            var bookTitle = sessionStorage.getItem('id');
+            var bookTitle = osql.getParam('id');
             console.log(bookTitle);
 
-            var sql = `select * from Books where ISBNCode = ''`
-            document.getElementById('rental').innerHTML = bookTitle;
+            var sql1 = `select * from Books where ISBNCode = '${bookTitle}';`
+            var objects = await osql.connect(sql1);
+            document.getElementById('rental').innerHTML = objects;
 
         }
+
+
         function buttonRent() {
             var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('', '', '', ) `
         }
