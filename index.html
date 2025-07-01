@@ -12,9 +12,9 @@
         // osql.requireLogin();
 
         // $(document).ready(async function () {
-        //     var me = await osql.getMe();
+        //     var me = await osql.Users();
         //     console.log(me);
-        //     var sql = `insert ignore into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
+        //     var sql = `insert into Users values('${me.id}', '${me.fname}', '${me.lname}');`;
         //     await osql.connect(sql);
 
         //     document.getElementById('firstname').innerHTML = me.fname;
@@ -24,6 +24,27 @@
         // function logout() {
         //     osql.logout();
         // }
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        $().ready(function () {
+            init();
+
+
+        });
+        function init() {
+            var name = sessionStorage.getItem('username');
+            document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
+        }
+        async function buttonRent() {
+
+        }
+
+        async function doRent() {
+            var rentBook = document.getElementById('textfield1').value;
+
+            var sql = `select * from Books where ISBNCode = '${rentBook}'`;
+            var objects = await osql.connect(sql);
+            console.log(objects);
+        }
 
 
     </script>
@@ -32,9 +53,10 @@
 
 <body>
     <h1>TOP</h1>
+
     <div style="text-align: right;">
-        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
-        <a href="javascript:logout()">logout</a>
+        <span id="welcome"></span>
+
     </div>
     <hr>
     <button id='register'>登録</button>
