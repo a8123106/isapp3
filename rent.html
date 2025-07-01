@@ -24,7 +24,22 @@
         // function logout() {
         //     osql.logout();
         // }
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        $().ready(function () {
+            init();
 
+
+        });
+        function init() {
+            //     var name = sessionStorage.getItem('username');
+            //     document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
+            var bookTitle = sessionStorage.getItem('id');
+            console.log(bookTitle);
+
+            var sql = `select * from Books where ISBNCode = ''`
+            document.getElementById('rental').innerHTML = bookTitle;
+
+        }
         function buttonRent() {
             var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('', '', '', ) `
         }
@@ -34,13 +49,11 @@
 </head>
 
 <body>
-    <h1>返却</h1>
-    <div style="text-align: right;">
-        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
-        <a href="javascript:logout()">logout</a>
-    </div>
+    <h1>貸出</h1>
+    <span id="welcome"></span>
     <hr>
-    <button onclick id='rent'>OK</button>
+    <div id="rental"></div>を借りますか？
+    <br><button onclick id='rent'>OK</button>
 
 
 

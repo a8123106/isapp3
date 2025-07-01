@@ -34,16 +34,15 @@
             var name = sessionStorage.getItem('username');
             document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
         }
-        async function buttonRent() {
-
-        }
 
         async function doRent() {
             var rentBook = document.getElementById('textfield1').value;
 
-            var sql = `select * from Books where ISBNCode = '${rentBook}'`;
-            var objects = await osql.connect(sql);
-            console.log(objects);
+            // var sql = `select * from Books where ISBNCode = '${rentBook}';`;
+            // var objects = await osql.connect(sql);
+            // console.log(objects);
+            sessionStorage.setItem('id', rentBook);
+            location.href = 'rent.html';
         }
 
 
@@ -61,7 +60,7 @@
     <hr>
     <button id='register'>登録</button>
     <h3>貸出</h3>
-    id: <input id='textfield1' type='text'><button onclick="location.href= `return.html`" id='rent'>
+    id: <input id='textfield1' type='text'><button onclick="doRent()" id='rent'>
         貸出
     </button>
 
