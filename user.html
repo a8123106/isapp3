@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/osql.js"></script>
+    <script>
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+
+        async function buttonPressed() {
+            var fname = document.getElementById('tf1').value;
+            var lname = document.getElementById('tf2').value;
+
+
+            var sql = `select * from Users where fname="${fname}" and lname = "${lname}";`;
+            var objects = await osql.connect(sql);
+            if (objects.length <= 0) {
+                document.getElementById('result').innerHTML = 'ログイン失敗：ユーザが見つかりません';
+                return;
+            }
+
+
+            sessionStorage.setItem('userid', objects[0].id);
+            sessionStorage.setItem('username', objects[0].fname);
+
+            location.href = 'index.html';
+        }
+    </script>
+
+</head>
+
+<body>
+    <h1>ログイン</h1>
+    <div>
+
+        名前(性):<input id="tf1" value="" type="textfield">
+        <br>　　(名):<input id="tf2" value="" type="textfield"> <button onclick="buttonPressed()">ログイン</button>
+        <p id="result"></p>
+    </div>
+    <hr>
+    <p><a href="newUser.html">新規登録</a></p>
+
+</body>
+
+</html>
