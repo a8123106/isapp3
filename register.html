@@ -9,6 +9,22 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+
+        async function init() {
+            var me = await osql.getMe();
+            var id = me.id
+            console.log(id);
+            var fname = me.fname;
+            var lname = me.lname;
+
+            var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+            var sql = `select fname,lname from Users where id = '${id}'`;
+            var names = await osql.connect(sql);
+            var name = names[0]
+
+            document.getElementById('welcome').innerHTML = 'ようこそ' + name.fname + name.lname + 'さん';
+        }
 
         async function register() {
             var ISBNcode = document.getElementById('tf1').value;
@@ -29,6 +45,11 @@
             document.getElementById('tf4').value = "";
             document.getElementById('tf5').value = "";
             document.getElementById('tf6').value = "";
+
+        }
+
+        async function topvalue() {
+            location.href = 'index.html';
         }
     </script>
 
@@ -53,6 +74,8 @@
     <button onclick="register()">登録</button>
 
     <p id="result"></p>
+
+    <button onclick="topvalue()">TOP</button>
 
 
 </body>
