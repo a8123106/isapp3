@@ -38,13 +38,15 @@
             console.log(id);
             var fname = me.fname;
             var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
 
-            // var sql = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
-            var sql = `select fname,lname from Users where id = '${id}'`;
-            var names = await osql.connect(sql);
-            var name = names[0]
 
-            document.getElementById('welcome').innerHTML = 'ようこそ' + name.fname + name.lname + 'さん';
+            var sql = `select * from Users where id = '${id}'`;
+            var user = await osql.connect(sql);
+            if (user.id == null) {
+                var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+                var newUser = await osql.connect(sql1);
+            }
         }
 
         async function doRent() {
