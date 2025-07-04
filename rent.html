@@ -27,24 +27,40 @@
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
         $().ready(function () {
             init();
+            rent();
 
 
         });
         async function init() {
+            var me = await osql.getMe();
+            var id = me.id
+            console.log(id);
+            var fname = me.fname;
+            var lname = me.lname;
+
+            var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+            var sql = `select fname,lname from Users where id = '${id}'`;
+            var names = await osql.connect(sql);
+            var name = names[0]
+
+            document.getElementById('welcome').innerHTML = 'ようこそ' + name.fname + name.lname + 'さん';
+        }
+        async function rent() {
             //     var name = sessionStorage.getItem('username');
             //     document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
             var bookTitle = osql.getParam('id');
             console.log(bookTitle);
 
-            var sql1 = `select * from Books where ISBNCode = '${bookTitle}';`
+            var sql1 = `select title from Books where ISBNCode = '${bookTitle}';`
             var objects = await osql.connect(sql1);
             document.getElementById('rental').innerHTML = objects;
 
         }
 
 
-        function buttonRent() {
-            var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('', '', '', ) `
+        async function buttonRent() {
+            var title = osql.getParam('id');
+            var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('${title}', '${}', '', ) `
         }
 
     </script>
