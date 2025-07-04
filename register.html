@@ -10,6 +10,9 @@
 
     <script>
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        $().ready(async function () {
+            init();
+        });
 
         async function init() {
             var me = await osql.getMe();
@@ -17,13 +20,15 @@
             console.log(id);
             var fname = me.fname;
             var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
 
-            var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
-            var sql = `select fname,lname from Users where id = '${id}'`;
-            var names = await osql.connect(sql);
-            var name = names[0]
 
-            document.getElementById('welcome').innerHTML = 'ようこそ' + name.fname + name.lname + 'さん';
+            var sql = `select * from Users where id = '${id}'`;
+            var user = await osql.connect(sql);
+            if (user == 0) {
+                var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+                var newUser = await osql.connect(sql1);
+            }
         }
 
         async function register() {
@@ -58,8 +63,8 @@
 <body>
     <h1>登録</h1>
     <div style="text-align: right;">
-        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
-        <a href="javascript:logout()">logout</a>
+        <span id="welcome"></span>
+
     </div>
     <hr>
 
