@@ -58,6 +58,15 @@
 
             location.href = `rent.html?ISBNCode=${rentBook}`;
         }
+        async function doReturn() {
+            var returnBook = document.getElementById('textfield2').value;
+
+            // var sql = `select * from Books where ISBNCode = '${rentBook}';`;
+            // var objects = await osql.connect(sql);
+            // console.log(objects);
+
+            location.href = `return.html?ISBNCode=${returnBook}`;
+        }
 
 
     </script>
@@ -72,14 +81,17 @@
 
     </div>
     <hr>
-    <button id='register'>登録</button>
+    <button onclick="location.href= `register.html`" id='register'>登録</button>
+
+
+
     <h3>貸出</h3>
     id: <input id='textfield1' type='text'><button onclick="doRent()" id='rent'>
         貸出
     </button>
 
     <h3>返却</h3>
-    id: <input id='textfield2' type='text'><button onclick="location.href= `rent.html`" id='return'>返却</button>
+    id: <input id='textfield2' type='text'><button onclick="doReturn()" id='return'>返却</button>
 
 
 
