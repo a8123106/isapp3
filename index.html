@@ -28,9 +28,6 @@
         $().ready(async function () {
             init();
 
-
-
-
         });
         async function init() {
             var me = await osql.getMe();
@@ -43,7 +40,7 @@
 
             var sql = `select * from Users where id = '${id}'`;
             var user = await osql.connect(sql);
-            if (user.id == null) {
+            if (user == 0) {
                 var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
                 var newUser = await osql.connect(sql1);
             }

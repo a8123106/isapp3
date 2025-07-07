@@ -9,6 +9,27 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        $().ready(async function () {
+            init();
+        });
+
+        async function init() {
+            var me = await osql.getMe();
+            var id = me.id
+            console.log(id);
+            var fname = me.fname;
+            var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
+
+
+            var sql = `select * from Users where id = '${id}'`;
+            var user = await osql.connect(sql);
+            if (user == 0) {
+                var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+                var newUser = await osql.connect(sql1);
+            }
+        }
 
         async function register() {
             var ISBNcode = document.getElementById('tf1').value;
@@ -29,6 +50,11 @@
             document.getElementById('tf4').value = "";
             document.getElementById('tf5').value = "";
             document.getElementById('tf6').value = "";
+
+        }
+
+        async function topvalue() {
+            location.href = 'index.html';
         }
     </script>
 
@@ -37,22 +63,24 @@
 <body>
     <h1>登録</h1>
     <div style="text-align: right;">
-        ようこそ<span id="lastname"></span> <span id="firstname"></span>さん
-        <a href="javascript:logout()">logout</a>
+        <span id="welcome"></span>
+
     </div>
     <hr>
 
 
-    ISBNCode: <input id='tf1' type='text'><br>
-    title: <input id='tf2' type='text'><br>
-    author: <input id='tf3' type='text'><br>
-    pubulisher: <input id='tf4' type='text'><br>
-    pubulished: <input id='tf5' type='text'><br>
-    removeable: <input id='tf6' type='text'><br>
+    ISBNコード: <input id='tf1' type='text'><br>
+    本の名前: <input id='tf2' type='text'><br>
+    著者: <input id='tf3' type='text'><br>
+    出版社: <input id='tf4' type='text'><br>
+    出版年: <input id='tf5' type='text'><br>
+    持ち出し（０：可、１：不可）: <input id='tf6' type='text'><br>
 
     <button onclick="register()">登録</button>
 
     <p id="result"></p>
+
+    <button onclick="topvalue()">TOP</button>
 
 
 </body>
