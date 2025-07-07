@@ -32,35 +32,42 @@
 
         });
         async function init() {
+
             var me = await osql.getMe();
             var id = me.id
             console.log(id);
             var fname = me.fname;
             var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
 
-            var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
-            var sql = `select fname,lname from Users where id = '${id}'`;
-            var names = await osql.connect(sql);
-            var name = names[0]
-
-            document.getElementById('welcome').innerHTML = 'ようこそ' + name.fname + name.lname + 'さん';
         }
         async function rent() {
-            //     var name = sessionStorage.getItem('username');
-            //     document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
-            var bookTitle = osql.getParam('id');
+            var bookTitle = osql.getParam('ISBNCode');
             console.log(bookTitle);
 
-            var sql1 = `select title from Books where ISBNCode = '${bookTitle}';`
+            var sql1 = `select title from Books where ISBNCode = '${bookTitle}';`;
             var objects = await osql.connect(sql1);
-            document.getElementById('rental').innerHTML = objects;
+            var book = objects[0];
+            document.getElementById('rental').innerHTML = '「' + book.title + '」' + 'を借りますか？';
 
         }
 
-
         async function buttonRent() {
-            var title = osql.getParam('id');
-            var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('${title}', '${}', '', ) `
+            var me = await osql.getMe();
+            var id = me.id
+            var book = osql.getParam('ISBNCode');
+            var sql1 = `select * from Rentals where bookId = '${book}' AND returnDate is null;`;
+            var check = await osql.connect(sql1);
+            if (check == 0) {
+                var bookId = osql.getParam('ISBNCode');
+                var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('${bookId}', '${id}', now(), null); `
+                var objects = await osql.connect(sql);
+                document.getElementById('state').innerHTML = '貸出しました'
+
+            } else {
+                document.getElementById('state').innerHTML = '貸出できません'
+            }
+
         }
 
     </script>
@@ -71,8 +78,10 @@
     <h1>貸出</h1>
     <span id="welcome"></span>
     <hr>
-    <div id="rental"></div>を借りますか？
-    <br><button onclick id='rent'>OK</button>
+    <div id="rental"></div>
+    <br><button onclick='buttonRent()'>OK</button>
+    <div id="state"></div>
+    <br><br><br> <button onclick="location.href= `index.html`">topに戻る</button>
 
 
 
