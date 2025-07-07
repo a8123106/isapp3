@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/osql.js"></script>
+
+    <script>
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        $().ready(async function () {
+            init();
+            execSelect();
+        });
+
+        async function init() {
+            var me = await osql.getMe();
+            var id = me.id
+            console.log(id);
+            var fname = me.fname;
+            var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
+
+
+            var sql = `select * from Users where id = '${id}'`;
+            var user = await osql.connect(sql);
+            if (user == 0) {
+                var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+                var newUser = await osql.connect(sql1);
+            }
+        }
+
+        async function execSelect() {
+            var sql = 'select * from Books';
+            var objects = await osql.connect(sql);
+            console.log(objects);
+            var html = '';
+            html = html + '<table border="1">';
+            html = html + '<tr>';
+            html = html + '<td>' + 'SNBNコード' + '</td>';
+            html = html + '<td>' + '本の名前' + '</td>';
+            html = html + '<td>' + '著者' + '</td>';
+            html = html + '<td>' + '出版社' + '</td>';
+            html = html + '<td>' + '出版年' + '</td>';
+            html = html + '<td>' + '持ち出し（０：可、１：不可' + '</td>';
+            html = html + '<td>' + '登録' + '</td>';
+            html = html + '</tr>';
+            for (var i = 0; i < objects.length; i++) {
+                html = html + '<tr>';
+                var object = objects[i];
+                html = html + '<td>' + object.ISBNCode + '</td>';
+                html = html + '<td>' + object.title + '</td>';
+                html = html + '<td>' + object.author + '</td>';
+                html = html + '<td>' + object.pubulisher + '</td>';
+                html = html + '<td>' + object.pubulished + '</td>';
+                html = html + '<td>' + object.removeable + '</td>';
+                html = html + '<td>' + object.registered + '</td>';
+                html = html + '</tr>';
+            }
+            html = html + '</table>';
+            document.getElementById('result').innerHTML = html;
+        }
+
+        async function topvalue() {
+            location.href = 'index.html';
+        }
+
+    </script>
+
+</head>
+
+<body>
+    <h1>登録リスト</h1>
+    <div style="text-align: right;">
+        <span id="welcome"></span>
+
+    </div>
+    <hr>
+
+    <div id="result"></div>
+
+    <button onclick="topvalue()">TOP</button>
+
+
+</body>
+
+</html>
