@@ -53,7 +53,7 @@
             // var objects = await osql.connect(sql);
             // console.log(objects);
 
-            location.href = `rent.html?ISBNCode=${rentBook}`;
+            location.href = `rent.html?bookId=${rentBook}`;
         }
         async function doReturn() {
             var returnBook = document.getElementById('textfield2').value;
@@ -62,7 +62,7 @@
             // var objects = await osql.connect(sql);
             // console.log(objects);
 
-            location.href = `return.html?ISBNCode=${returnBook}`;
+            location.href = `return.html?bookId=${returnBook}`;
         }
 
 
@@ -81,10 +81,10 @@
     <hr>
     <button onclick="location.href= `register.html`" id='register'>登録</button>
     <h3>貸出</h3>
-    ISBNコード: <input id='textfield1' type='text'><button onclick="doRent()" id='rent'>借りる </button>
+    id: <input id='textfield1' type='text'><button onclick="doRent()" id='rent'>借りる </button>
 
     <h3>返却</h3>
-    ISBNコード: <input id='textfield2' type='text'><button onclick="doReturn()" id='return'>返す</button>
+    id: <input id='textfield2' type='text'><button onclick="doReturn()" id='return'>返す</button>
 
 
 
