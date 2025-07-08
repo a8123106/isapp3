@@ -35,11 +35,11 @@
             var ISBNcode = document.getElementById('tf1').value;
             var title = document.getElementById('tf2').value;
             var author = document.getElementById('tf3').value;
-            var pubulisher = document.getElementById('tf4').value;
-            var pubulished = document.getElementById('tf5').value;
+            var publisher = document.getElementById('tf4').value;
+            var published = document.getElementById('tf5').value;
             var removable = document.getElementById('tf6').value;
 
-            var sql = `insert into Books (ISBNcode, title, author, pubulisher, pubulished, removable,registered) values("${ISBNcode}", "${title}", "${author}", "${pubulisher}", "${pubulished}", "${removable}",now());`;
+            var sql = `insert into Books (ISBNCode, title, author, publisher, published, removable,registered) values("${ISBNcode}", "${title}", "${author}", "${publisher}", "${published}", "${removable}",now());`;
             var objects = await osql.connect(sql);
             console.log(objects);
 
