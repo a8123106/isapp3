@@ -24,7 +24,9 @@
         // function logout() {
         //     osql.logout();
         // }
-        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        osql.requireLogin();
+        var bookId = osql.getParam('bookId');
+        //すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
         $().ready(function () {
             init();
             rent();
@@ -42,10 +44,10 @@
 
         }
         async function rent() {
-            var bookTitle = osql.getParam('ISBNCode');
+            var bookTitle = osql.getParam('bookId');
             console.log(bookTitle);
 
-            var sql1 = `select title from Books where ISBNCode = '${bookTitle}';`;
+            var sql1 = `select title from Books where id = '${bookTitle}';`;
             var objects = await osql.connect(sql1);
             var book = objects[0];
             document.getElementById('rental').innerHTML = '「' + book.title + '」' + 'を借りますか？';
@@ -55,11 +57,12 @@
         async function buttonRent() {
             var me = await osql.getMe();
             var id = me.id
-            var book = osql.getParam('ISBNCode');
-            var sql1 = `select * from Rentals where bookId = '${book}' AND returnDate is null;`;
+
+            var sql1 = `select * from Rentals where bookId = '${bookId}' AND returnDate is null;`;
             var check = await osql.connect(sql1);
-            if (check == 0) {
-                var bookId = osql.getParam('ISBNCode');
+            console.log(check)
+            if (check.length == 0) {
+
                 var sql = `insert into Rentals (bookId, userId, rentalDate, returnDate) values ('${bookId}', '${id}', now(), null); `
                 var objects = await osql.connect(sql);
                 document.getElementById('state').innerHTML = '貸出しました'
