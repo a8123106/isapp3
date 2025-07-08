@@ -23,12 +23,12 @@
             document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
 
 
-            var sql = `select * from Users where id = '${id}'`;
-            var user = await osql.connect(sql);
-            if (user == 0) {
-                var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
-                var newUser = await osql.connect(sql1);
-            }
+            // var sql = `select * from Users where id = '${id}'`;
+            // var user = await osql.connect(sql);
+            // if (user == 0) {
+            //     var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
+            //     var newUser = await osql.connect(sql1);
+            // }
         }
 
         async function register() {
