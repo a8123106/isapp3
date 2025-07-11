@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/osql.js"></script>
+    <script type="text/javascript" src="lib/qrcode.min.js"></script>
+
+    <script>
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        $().ready(async function () {
+            init();
+        });
+
+        async function init() {
+            var me = await osql.getMe();
+            var id = me.id
+            console.log(id);
+            var fname = me.fname;
+            var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
+
+        }
+
+        //new QRCode(document.getElementById("qrcode"), "index.html.");
+        // 読込後
+        function CRTOR() {
+            // 入力欄の要素を取得
+            var inp01 = document.getElementById('INP01');
+            // ボタンの要素を取得
+            var bnt01 = document.getElementById('CRTQR');
+            // ボタン クリック時の処理を追加
+            // QRコードの出力先をクリア
+            document.getElementById('QR').textContent = '';
+            // QRコード作成
+            var qrcode = new QRCode('QR', {
+                text: inp01.value,
+                width: 128,
+                height: 128,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+        };
+
+
+    </script>
+
+</head>
+
+<body>
+    <h1>Libree</h1>
+    <h1>QRコード作成</h1>
+    <div style="text-align: right;">
+        <span id="welcome"></span>
+    </div>
+    <hr>
+
+    <input type="url" class="input" value="" id="INP01" placeholder="URLを入力してください。">
+    <button onclick="CRTOR()">QRコード生成</button>
+    <div id="QR" class="container m-4 is-justify-content-center is-flex"></div>
+
+
+
+</body>
+
+</html>
