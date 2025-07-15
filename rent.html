@@ -44,7 +44,6 @@
 
         }
         async function rent() {
-            var bookTitle = osql.getParam('bookId');
             console.log(bookTitle);
 
             var sql1 = `select title from Books where id = '${bookTitle}';`;
