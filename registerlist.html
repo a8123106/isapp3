@@ -47,6 +47,7 @@
             html = html + '<td>' + '出版年' + '</td>';
             html = html + '<td>' + '持ち出し（０：可、１：不可' + '</td>';
             html = html + '<td>' + '登録' + '</td>';
+            html = html + '<td>' + 'QRコード' + '</td>';
             html = html + '</tr>';
             for (var i = 0; i < objects.length; i++) {
                 html = html + '<tr>';
@@ -59,19 +60,23 @@
                 html = html + '<td>' + object.published + '</td>';
                 html = html + '<td>' + object.removable + '</td>';
                 html = html + '<td>' + object.registered + '</td>';
+                html = html + '<td><button class="create-qr-button" data-book-id="' + object.id + '">QRコード作成</button></td>';
                 html = html + '</tr>';
             }
             html = html + '</table>';
             document.getElementById('result').innerHTML = html;
+
+            // 新しく生成されたボタンにイベントリスナーを設定
+            document.querySelectorAll('.create-qr-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookId = this.dataset.bookId;
+                    location.href = 'qrcode.html?bookId=' + encodeURIComponent(bookId);
+                });
+            });
         }
 
-        async function topvalue() {
-            location.href = 'index.html';
-        }
-
-        async function qrcode() {
-            location.href = 'qrcode.html';
-        }
+        // createQrCode 関数は不要になるため削除
+        // escapeJsString 関数も不要になるため削除
 
     </script>
 

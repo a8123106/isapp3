@@ -13,6 +13,12 @@
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
         $().ready(async function () {
             init();
+            // URLパラメータからbookIdを取得
+            var bookIdFromUrl = osql.getParam('bookId');
+            if (bookIdFromUrl) {
+                document.getElementById('INP01').value = bookIdFromUrl;
+                CRTOR(); // bookIdがあれば自動でQRコードを生成
+            }
         });
 
         async function init() {
