@@ -13,6 +13,12 @@
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
         $().ready(async function () {
             init();
+            // URLパラメータからbookIdを取得
+            var bookIdFromUrl = osql.getParam('bookId');
+            if (bookIdFromUrl) {
+                document.getElementById('INP01').value = bookIdFromUrl;
+                CRTOR(); // bookIdがあれば自動でQRコードを生成
+            }
         });
 
         async function init() {
@@ -30,17 +36,21 @@
         function CRTOR() {
             // 入力欄の要素を取得
             var inp01 = document.getElementById('INP01');
-            // ボタンの要素を取得
-            var bnt01 = document.getElementById('CRTQR');
-            // ボタン クリック時の処理を追加
+
+            // 入力されたIDを取得
+            var bookId = inp01.value;
+            // 基本となるURLを定義 (新しい行)
+            var baseUrl = "https://a8123106.github.io/isapp3/rent.html";
+            // 変更点3: bookIdをURLパラメータとして含んだ完全なURLを構築 (新しい行)
+            var fullUrl = `${baseUrl}?bookId=${encodeURIComponent(bookId)}`;
             // QRコードの出力先をクリア
             document.getElementById('QR').textContent = '';
             // QRコード作成
             var qrcode = new QRCode('QR', {
-                text: inp01.value,
-                width: 128,
-                height: 128,
-                correctLevel: QRCode.CorrectLevel.H
+                text: fullUrl,
+                width: 60,
+                height: 60,
+                correctLevel: QRCode.CorrectLevel.L
             });
 
         };
@@ -58,7 +68,7 @@
     </div>
     <hr>
 
-    <input type="url" class="input" value="" id="INP01" placeholder="URLを入力してください。">
+    <input type="text" class="input" value="" id="INP01" placeholder="IDを入力してください。">
     <button onclick="CRTOR()">QRコード生成</button>
     <div id="QR" class="container m-4 is-justify-content-center is-flex"></div>
 
