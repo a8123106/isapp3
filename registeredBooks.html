@@ -33,8 +33,8 @@
         }
 
         async function execSelect() {
-            // var sql = 'select * from Books inner join (select title, count(title) from Books group by title) as X on Books.title = X.title;';
-            var sql = `select * from Books where ISBNCode = '${2222222222222}'`;
+            var sql = 'select Books.author,Books.title,Books.ISBNCode, Books.publisher,Books.published,Books.removable, count(Books.ISBNCode) as number_of_copies from Books group by Books.author,Books.title,Books.ISBNCode,Books.publisher,Books.published,Books.removable; ';
+            // var sql = `select * from Books where ISBNCode = '${2222222222222}'`;
 
             var objects = await osql.connect(sql);
             console.log(objects);
@@ -54,20 +54,27 @@
             html = html + '<td>' + '総数' + '</td>';
             html = html + '</tr>';
             for (var i = 0; i < objects.length; i++) {
+
+
                 html = html + '<tr>';
                 var object = objects[i];
                 html = html + '<td>' + object.title + '</td>';
                 html = html + '<td>' + object.author + '</td>';
                 html = html + '<td>' + object.publisher + '</td>';
                 html = html + '<td>' + object.published + '</td>';
-                html = html + '<td>' + object.removable + '</td>';
-                // html = html + '<td>' + object.Books.(count(title)) + '<td>';
-                html = html + '<td>' + object.count_title + '</td>';
+                if (object.removable == 0) {
+                    html = html + '<td> 〇 </td>';
+                } else if (object.removable == 1) {
+                    html = html + '<td> ✕</td>';
+                }
+                // html = html + `<td button onclick = "registeredOne.html?id= '${object.ISBNCode} '>` + object.number_of_copies + `</td>`;
+
+                // html = html + `< td > <a href="${registeredOne.html ? isbn = + ${ object.ISBNCode } ">`+ object.number_of_copies + '</td>';
+                html = html + '<td>' + object.number_of_copies + '</td>';
                 html = html + '</tr>';
 
             }
             html = html + '</table>';
-
             document.getElementById('result').innerHTML = html;
         }
 
