@@ -13,6 +13,12 @@
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
         $().ready(async function () {
             init();
+            // URLパラメータからbookIdを取得
+            var bookIdFromUrl = osql.getParam('bookId');
+            if (bookIdFromUrl) {
+                document.getElementById('INP01').value = bookIdFromUrl;
+                CRTOR(); // bookIdがあれば自動でQRコードを生成
+            }
         });
 
         async function init() {
@@ -42,9 +48,9 @@
             // QRコード作成
             var qrcode = new QRCode('QR', {
                 text: fullUrl,
-                width: 128,
-                height: 128,
-                correctLevel: QRCode.CorrectLevel.H
+                width: 60,
+                height: 60,
+                correctLevel: QRCode.CorrectLevel.L
             });
 
         };
