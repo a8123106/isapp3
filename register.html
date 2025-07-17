@@ -40,7 +40,7 @@
             var discussed = document.getElementById('tf6').value;
             var removable = document.getElementById('tf7').value;
 
-            var sql = `insert into Books (ISBNCode, title, author, publisher, published, removable,registered) values("${ISBNcode}", "${title}", "${author}", "${publisher}", "${published}", "${removable}",now());`;
+            var sql = `insert into Books (ISBNCode, title, author, publisher, published, removable,discussed,registered) values("${ISBNcode}", "${title}", "${author}", "${publisher}", "${published}","${discussed}", "${removable}",now());`;
             var objects = await osql.connect(sql);
             console.log(objects);
 
@@ -76,7 +76,7 @@
     著者: <input id='tf3' type='text'><br>
     出版社: <input id='tf4' type='text'><br>
     出版年: <input id='tf5' type='text'><br>
-    輪講用: <input id='tf6' type='text'><br>
+    輪講用（０：輪講用、１：その他）: <input id='tf6' type='text'><br>
     持ち出し（０：可、１：不可）: <input id='tf7' type='text'><br>
 
     <button onclick="register()">登録</button>
