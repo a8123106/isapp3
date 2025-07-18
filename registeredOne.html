@@ -1,99 +1,103 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
     <script type="text/javascript" src="lib/jquery.min.js"></script>
     <script type="text/javascript" src="lib/osql.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 
     <script>
-        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        osql.requireLogin(); // Google認証
+        var isbn = osql.getParam('isbn'); // URLパラメータからISBNを取得
+
+
         $().ready(async function () {
             init();
-            execSelect();
         });
 
         async function init() {
             var me = await osql.getMe();
-            var id = me.id
-            console.log(id);
+            var id = me.id;
             var fname = me.fname;
             var lname = me.lname;
             document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
 
+            var bookTitle;
 
-            // var sql = `select * from Users where id = '${id}'`;
-            // var user = await osql.connect(sql);
-            // if (user == 0) {
-            //     var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
-            //     var newUser = await osql.connect(sql1);
-            // }
-        }
+            // 1. 指定されたISBNの本のタイトルを取得 (表示用)
+            var bookTitleSql = `select title from Books where ISBNCode = '${isbn}' limit 1;`;
+            var titleObjects = await osql.connect(bookTitleSql);
 
-        async function execSelect() {
-            var sql = 'select Books.author,Books.title,Books.ISBNCode, Books.publisher,Books.published,Books.removable, count(Books.ISBNCode) as number_of_copies from Books group by Books.author,Books.title,Books.ISBNCode,Books.publisher,Books.published,Books.removable; ';
-            // var sql = `select * from Books where ISBNCode = '${2222222222222}'`;
-
-            var objects = await osql.connect(sql);
-            console.log(objects);
-
-            // var sql1 = `select title, count(title) from Books group by title;`;
-            // var objects1 = await osql.connect(sql1);
-            // console.log(objects1);
-
-            var html = '';
-            html = html + '<table border="1">';
-            html = html + '<tr>';
-            html = html + '<td>' + '題名' + '</td>';
-            html = html + '<td>' + '著者名' + '</td>';
-            html = html + '<td>' + '出版社' + '</td>';
-            html = html + '<td>' + '出版年' + '</td>';
-            html = html + '<td>' + '持出' + '</td>';
-            html = html + '<td>' + '総数' + '</td>';
-            html = html + '</tr>';
-            for (var i = 0; i < objects.length; i++) {
-
-
-                html = html + '<tr>';
-                var object = objects[i];
-                html = html + '<td>' + object.title + '</td>';
-                html = html + '<td>' + object.author + '</td>';
-                html = html + '<td>' + object.publisher + '</td>';
-                html = html + '<td>' + object.published + '</td>';
-                if (object.removable == 0) {
-                    html = html + '<td> 〇 </td>';
-                } else if (object.removable == 1) {
-                    html = html + '<td> ✕</td>';
-                }
-                html = html + '</tr>';
-
+            if (titleObjects && titleObjects.length > 0) {
+                bookTitle = titleObjects[0].title;
             }
-            html = html + '</table>';
-            document.getElementById('result').innerHTML = html;
-        }
 
-        async function topvalue() {
-            location.href = 'index.html';
-        }
+            document.getElementById('book-title').innerHTML = '「' + bookTitle + '  」';
 
+            var combinedSql = `select B.id as bookId, B.registered as registeredDate, U.fname, U.lname, R.rentalDate, R.returnDate from Books as B left join Rentals as R on B.id = R.bookId AND R.returnDate is null left join Users as U on R.userId = U.id where B.ISBNCode = '${isbn}' order by B.id ASC;`;
+            console.log("Step 2: Executing combinedSql (for all bookIds of this ISBN):", combinedSql);
+            var combinedObjects = await osql.connect(combinedSql);
+
+            var tableHtml = '<table>';
+            tableHtml += '<tr><th>ID</th><th>登録日</th><th>貸出中</th></tr>';
+
+            if (combinedObjects && combinedObjects.length > 0) {
+                combinedObjects.forEach(function (row) {
+                    var borrowerName = ' ― '; // デフォルト
+                    if (row.fname && row.lname) { // 貸出中のユーザー名がある場合
+                        borrowerName = row.fname + ' ' + row.lname;
+                    }
+
+                    tableHtml += `<tr>
+                                    <td>${row.bookId}</td>
+                                    <td>${row.registeredDate}</td>
+                                    <td>${borrowerName}</td>
+                                  </tr>`;
+                });
+            } else {
+                tableHtml += '<tr><td colspan="3">この本の情報は見つかりませんでした。</td></tr>';
+            }
+            tableHtml += '</table>';
+
+            document.getElementById('book-details-table').innerHTML = tableHtml;
+        }
 
     </script>
-
 </head>
 
 <body>
-    <h1>登録一覧</h1>
+    <h1>Libree</h1>
+
     <div style="text-align: right;">
         <span id="welcome"></span>
-
     </div>
     <hr>
+    <h1 id="book-title" style="text-align: center;"></h1>
 
-    <div id="result"></div>
+    <h2>詳細</h2>
+    <div id="book-details-table">
+    </div>
 
-    <button onclick="topvalue()">TOP</button>
+    <button onclick="location.href= `index.html`">topに戻る</button>
+    <button onclick="location.href= `registeredBooks.html`">登録一覧に戻る</button>
 
 
 </body>
