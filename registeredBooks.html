@@ -51,6 +51,8 @@
             html = html + '<td>' + '出版社' + '</td>';
             html = html + '<td>' + '出版年' + '</td>';
             html = html + '<td>' + '持出' + '</td>';
+            html = html + '<td>' + '輪講' + '</td>';
+
             html = html + '<td>' + '総数' + '</td>';
             html = html + '</tr>';
             for (var i = 0; i < objects.length; i++) {
@@ -69,7 +71,9 @@
                 }
                 // html = html + `<td button onclick = "registeredOne.html?id= '${object.ISBNCode} '>` + object.number_of_copies + `</td>`;
 
-                // html = html + `< td > <a href="${registeredOne.html ? isbn = + ${ object.ISBNCode } ">`+ object.number_of_copies + '</td>';
+                // html = html + `< td a href="${registeredOne.html ? isbn = + ${ object.ISBNCode } ">`+ object.number_of_copies + '</td>';
+                html = html + '<td>' + object.discussed + '</td>';
+
                 html = html + '<td>' + object.number_of_copies + '</td>';
                 html = html + '</tr>';
 
