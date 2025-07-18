@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/osql.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+
+    <script>
+        osql.requireLogin(); // Google認証
+        var isbn = osql.getParam('isbn'); // URLパラメータからISBNを取得
+
+        // デフォルトで「多様性の科学」のISBNを設定（テスト用）
+        if (!isbn) {
+            isbn = '978499327524'; // 「多様性の科学」のISBNコード
+            console.log("URL parameter ISBN not found, defaulting to '多様性の科学' ISBN:", isbn);
+        }
+
+        $().ready(async function () {
+            init();
+        });
+
+        async function init() {
+            var me = await osql.getMe();
+            var id = me.id;
+            var fname = me.fname;
+            var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
+
+            var bookTitle;
+
+            // 1. 指定されたISBNの本のタイトルを取得 (表示用)
+            var bookTitleSql = `select title from Books where ISBNCode = '${isbn}' limit 1;`;
+            var titleObjects = await osql.connect(bookTitleSql);
+
+            if (titleObjects && titleObjects.length > 0) {
+                bookTitle = titleObjects[0].title;
+            }
+
+            document.getElementById('book-title').innerHTML = bookTitle;
+
+            var combinedSql = `select B.id as bookId, B.registered as registeredDate, U.fname, U.lname, R.rentalDate, R.returnDate from Books as B left join Rentals as R on B.id = R.bookId AND R.returnDate is null left join Users as U on R.userId = U.id where B.ISBNCode = '${isbn}' order by B.id ASC;`;
+            console.log("Step 2: Executing combinedSql (for all bookIds of this ISBN):", combinedSql);
+            var combinedObjects = await osql.connect(combinedSql);
+
+            var tableHtml = '<table>';
+            tableHtml += '<tr><th>ID</th><th>登録日</th><th>貸出中</th></tr>';
+
+            if (combinedObjects && combinedObjects.length > 0) {
+                combinedObjects.forEach(function (row) {
+                    var borrowerName = ' ― '; // デフォルト
+                    if (row.fname && row.lname) { // 貸出中のユーザー名がある場合
+                        borrowerName = row.fname + ' ' + row.lname;
+                    }
+
+                    tableHtml += `<tr>
+                                    <td>${row.bookId}</td>
+                                    <td>${row.registeredDate}</td>
+                                    <td>${borrowerName}</td>
+                                  </tr>`;
+                });
+            } else {
+                tableHtml += '<tr><td colspan="3">この本の情報は見つかりませんでした。</td></tr>';
+            }
+            tableHtml += '</table>';
+
+            document.getElementById('book-details-table').innerHTML = tableHtml;
+        }
+
+    </script>
+</head>
+
+<body>
+    <div style="text-align: right;">
+        <span id="welcome"></span>
+    </div>
+    <hr>
+    <h1 id="book-title" style="text-align: center;"></h1>
+
+    <h2>詳細</h2>
+    <div id="book-details-table">
+    </div>
+
+    <button onclick="location.href= `index.html`">topに戻る</button>
+
+</body>
+
+</html>
