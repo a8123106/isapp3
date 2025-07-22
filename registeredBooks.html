@@ -33,7 +33,7 @@
         }
 
         async function execSelect() {
-            var sql = 'select Books.author,Books.title,Books.ISBNCode, Books.publisher,Books.published,Books.removable, count(Books.ISBNCode) as number_of_copies from Books group by Books.author,Books.title,Books.ISBNCode,Books.publisher,Books.published,Books.removable; ';
+            var sql = 'select Books.author,Books.title,Books.ISBNCode, Books.publisher,Books.published,Books.removable, Books.discussed,count(Books.ISBNCode) as number_of_copies from Books group by Books.author,Books.title,Books.ISBNCode,Books.publisher,Books.published,Books.removable,Books.discussed; ';
             // var sql = `select * from Books where ISBNCode = '${2222222222222}'`;
 
             var objects = await osql.connect(sql);
@@ -52,7 +52,6 @@
             html = html + '<td>' + '出版年' + '</td>';
             html = html + '<td>' + '持出' + '</td>';
             html = html + '<td>' + '輪講' + '</td>';
-
             html = html + '<td>' + '総数' + '</td>';
             html = html + '</tr>';
             for (var i = 0; i < objects.length; i++) {
@@ -69,12 +68,13 @@
                 } else if (object.removable == 1) {
                     html = html + '<td> ✕</td>';
                 }
-                // html = html + `<td button onclick = "registeredOne.html?id= '${object.ISBNCode} '>` + object.number_of_copies + `</td>`;
+                if (object.discussed == 1) {
+                    html = html + '<td> ✕ </td>';
+                } else if (object.discussed == 0) {
+                    html = html + '<td> 〇 </td>';
+                }
 
-                // html = html + `< td a href="${registeredOne.html ? isbn = + ${ object.ISBNCode } ">`+ object.number_of_copies + '</td>';
-                html = html + '<td>' + object.discussed + '</td>';
-
-                html = html + '<td>' + object.number_of_copies + '</td>';
+                html = html + `<td><a href="registeredOne.html?isbn=${object.ISBNCode}">${object.number_of_copies}</a></td>`;
                 html = html + '</tr>';
 
             }
@@ -91,6 +91,8 @@
 </head>
 
 <body>
+    <h1>Libree</h1>
+
     <h1>登録一覧</h1>
     <div style="text-align: right;">
         <span id="welcome"></span>

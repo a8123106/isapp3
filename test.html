@@ -28,6 +28,11 @@
         osql.requireLogin(); // Google認証
         var isbn = osql.getParam('isbn'); // URLパラメータからISBNを取得
 
+        // デフォルトで「多様性の科学」のISBNを設定（テスト用）
+        if (!isbn) {
+            isbn = '978499327524'; // 「多様性の科学」のISBNコード
+            console.log("URL parameter ISBN not found, defaulting to '多様性の科学' ISBN:", isbn);
+        }
 
         $().ready(async function () {
             init();
@@ -50,7 +55,7 @@
                 bookTitle = titleObjects[0].title;
             }
 
-            document.getElementById('book-title').innerHTML = '「' + bookTitle + '  」';
+            document.getElementById('book-title').innerHTML = bookTitle;
 
             var combinedSql = `select B.id as bookId, B.registered as registeredDate, U.fname, U.lname, R.rentalDate, R.returnDate from Books as B left join Rentals as R on B.id = R.bookId AND R.returnDate is null left join Users as U on R.userId = U.id where B.ISBNCode = '${isbn}' order by B.id ASC;`;
             console.log("Step 2: Executing combinedSql (for all bookIds of this ISBN):", combinedSql);
@@ -84,8 +89,6 @@
 </head>
 
 <body>
-    <h1>Libree</h1>
-
     <div style="text-align: right;">
         <span id="welcome"></span>
     </div>
@@ -97,8 +100,6 @@
     </div>
 
     <button onclick="location.href= `index.html`">topに戻る</button>
-    <button onclick="location.href= `registeredBooks.html`">登録一覧に戻る</button>
-
 
 </body>
 
