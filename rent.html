@@ -9,6 +9,7 @@
     <script type="text/javascript" src="lib/osql.js"></script>
 
     <script>
+
         // osql.requireLogin();
 
         // $(document).ready(async function () {
@@ -50,7 +51,7 @@
             var sql1 = `select title from Books where id = '${bookId}';`;
             var objects = await osql.connect(sql1);
             var book = objects[0];
-            document.getElementById('rental').innerHTML = '「' + book.title + '」' + 'を借りますか？';
+            document.getElementById('rental').innerHTML = '「' + book.title + '」を借りますか？';
 
         }
 
