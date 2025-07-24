@@ -29,6 +29,7 @@
             init();
 
         });
+        //自分の本履歴・備品が管理できるようにする？（→DBから変える必要がある）
         async function init() {
             var me = await osql.getMe();
             var id = me.id
@@ -44,6 +45,54 @@
                 var sql1 = `insert into Users (id, fname, lname) values ('${id}', '${fname}', '${lname}');`
                 var newUser = await osql.connect(sql1);
             }
+        }
+
+        async function history() {
+            var sql = 'select Books.author,Books.title,Books.ISBNCode, Books.publisher,Books.published,Books.removable, Books.discussed,count(Books.ISBNCode) as number_of_copies from Books group by Books.author,Books.title,Books.ISBNCode,Books.publisher,Books.published,Books.removable,Books.discussed; ';
+            // var sql = `select * from Books where ISBNCode = '${2222222222222}'`;
+
+            var objects = await osql.connect(sql);
+            console.log(objects);
+
+            // var sql1 = `select title, count(title) from Books group by title;`;
+            // var objects1 = await osql.connect(sql1);
+            // console.log(objects1);
+
+            var html = '';
+            html = html + '<table border="1">';
+            html = html + '<tr>';
+            html = html + '<td>' + '題名' + '</td>';
+            html = html + '<td>' + '著者名' + '</td>';
+            html = html + '<td>' + '出版社' + '</td>';
+            html = html + '<td>' + '出版年' + '</td>';
+            html = html + '<td>' + '持出' + '</td>';
+            html = html + '<td>' + '輪講' + '</td>';
+            html = html + '<td>' + '総数' + '</td>';
+            html = html + '</tr>';
+            for (var i = 0; i < objects.length; i++) {
+                html = html + '<tr>';
+                var object = objects[i];
+                html = html + '<td>' + object.title + '</td>';
+                html = html + '<td>' + object.author + '</td>';
+                html = html + '<td>' + object.publisher + '</td>';
+                html = html + '<td>' + object.published + '</td>';
+                if (object.removable == 0) {
+                    html = html + '<td> 〇 </td>';
+                } else if (object.removable == 1) {
+                    html = html + '<td> ✕</td>';
+                }
+                if (object.discussed == 1) {
+                    html = html + '<td> ✕ </td>';
+                } else if (object.discussed == 0) {
+                    html = html + '<td> 〇 </td>';
+                }
+
+                html = html + `<td><a href="registeredOne.html?isbn=${object.ISBNCode}">${object.number_of_copies}</a></td>`;
+                html = html + '</tr>';
+
+            }
+            html = html + '</table>';
+            document.getElementById('history').innerHTML = html;
         }
 
         async function doRent() {
@@ -79,8 +128,11 @@
 
     </div>
     <hr>
+
     <button onclick="location.href= `register.html`">登録</button>
     <button onclick="location.href= `registeredBooks.html`">登録一覧</button>
+    <div id="history"></div>
+
     <h3>貸出</h3>
     id: <input id='textfield1' type='text'><button onclick="doRent()" id='rent'>借りる </button>
 
