@@ -88,11 +88,6 @@
         async function topvalue() {
             location.href = 'index.html';
         }
-
-        function setToggleValue(idPrefix, value) {
-            document.getElementById(idPrefix).value = value;
-            document.getElementById(idPrefix + '_display').innerText = value;
-        }
     </script>
 
 </head>
@@ -111,12 +106,8 @@
     著者: <input id='tf3' type='text'><br>
     出版社: <input id='tf4' type='text'><br>
     出版年: <input id='tf5' type='text'><br>
-    輪講用: <span id="tf6_display">0</span><input type="hidden" id="tf6" value="0"><button type="button"
-        onclick="setToggleValue('tf6', 0)">0 (輪講用)</button><button type="button" onclick="setToggleValue('tf6', 1)">1
-        (その他)</button><br>
-    持ち出し: <span id="tf7_display">0</span><input type="hidden" id="tf7" value="0"><button type="button"
-        onclick="setToggleValue('tf7', 0)">0 (可)</button><button type="button" onclick="setToggleValue('tf7', 1)">1
-        (不可)</button><br>
+    輪講用（０：輪講用、１：その他）: <input id='tf6' type='text'><br>
+    持ち出し（０：可、１：不可）: <input id='tf7' type='text'><br>
 
     <button onclick="register()">登録</button>
 
