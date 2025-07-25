@@ -27,6 +27,8 @@
     <script>
         osql.requireLogin(); // Google認証
         var isbn = osql.getParam('isbn'); // URLパラメータからISBNを取得
+        var bookId = osql.getParam('bookId');
+
 
 
         $().ready(async function () {
@@ -53,11 +55,10 @@
             document.getElementById('book-title').innerHTML = '「' + bookTitle + '  」';
 
             var combinedSql = `select B.id as bookId, B.registered as registeredDate, U.fname, U.lname, R.rentalDate, R.returnDate from Books as B left join Rentals as R on B.id = R.bookId AND R.returnDate is null left join Users as U on R.userId = U.id where B.ISBNCode = '${isbn}' order by B.id ASC;`;
-            console.log("Step 2: Executing combinedSql (for all bookIds of this ISBN):", combinedSql);
             var combinedObjects = await osql.connect(combinedSql);
 
             var tableHtml = '<table>';
-            tableHtml += '<tr><th>ID</th><th>登録日</th><th>貸出中</th></tr>';
+            tableHtml += '<tr><th>ID</th><th>登録日</th><th>貸出中</th><th>貸出日</th><th>QRコード</th></tr>';
 
             if (combinedObjects && combinedObjects.length > 0) {
                 combinedObjects.forEach(function (row) {
@@ -70,15 +71,29 @@
                                     <td>${row.bookId}</td>
                                     <td>${row.registeredDate}</td>
                                     <td>${borrowerName}</td>
+                                    <td>${row.rentalDate}</td>
+                                    <td><button class="create-qr-button" data-book-id="${row.bookId}">QRコード作成</button></td>
                                   </tr>`;
-                });
+
+
+                }
+
+                );
             } else {
                 tableHtml += '<tr><td colspan="3">この本の情報は見つかりませんでした。</td></tr>';
             }
             tableHtml += '</table>';
 
             document.getElementById('book-details-table').innerHTML = tableHtml;
+
+            document.querySelectorAll('.create-qr-button').forEach(button => {
+                button.addEventListener('click', function () {
+                    const bookId = this.dataset.bookId;
+                    location.href = 'qrcode.html?bookId=' + encodeURIComponent(bookId);
+                });
+            })
         }
+
 
     </script>
 </head>
@@ -92,7 +107,7 @@
     <hr>
     <h1 id="book-title" style="text-align: center;"></h1>
 
-    <h2>詳細</h2>
+
     <div id="book-details-table">
     </div>
 
