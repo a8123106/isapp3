@@ -7,6 +7,7 @@
 
     <script type="text/javascript" src="lib/jquery.min.js"></script>
     <script type="text/javascript" src="lib/osql.js"></script>
+    <script type="text/javascript" src="lib/qrcode.min.js"></script>
 
     <script>
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
@@ -68,21 +69,123 @@
             var author = document.getElementById('tf3').value;
             var publisher = document.getElementById('tf4').value;
             var published = document.getElementById('tf5').value;
+            var quantity = parseInt(document.getElementById('tf_quantity').value, 10); // 数量を取得
             var discussed = document.getElementById('tf6').value;
             var removable = document.getElementById('tf7').value;
 
-            var sql = `insert into Books (ISBNCode, title, author, publisher, published, removable,discussed,registered) values("${ISBNcode}", "${title}", "${author}", "${publisher}", "${published}","${discussed}", "${removable}",now());`;
-            var objects = await osql.connect(sql);
-            console.log(objects);
+            if (isNaN(quantity) || quantity < 1) {
+                alert("登録冊数は1以上の数値を入力してください。");
+                return;
+            }
 
-            document.getElementById('result').innerHTML = 'OK';
+            let successCount = 0;
+            const registeredBookIds = []; // 登録された本のIDを格納する配列
+
+            for (let i = 0; i < quantity; i++) {
+                var sql = `insert into Books (ISBNCode, title, author, publisher, published, removable,discussed,registered) values("${ISBNcode}", "${title}", "${author}", "${publisher}", "${published}","${discussed}", "${removable}",now());`;
+                try {
+                    // osql.connectInsert を使用して、挿入されたレコードのIDを取得
+                    var lastInsertId = await osql.connectInsert(sql);
+                    console.log(`登録 ${i + 1} 冊目: ID = ${lastInsertId}`);
+                    if (lastInsertId) {
+                        registeredBookIds.push(lastInsertId); // 登録されたIDを保存
+                        successCount++;
+                    }
+                } catch (error) {
+                    console.error(`登録 ${i + 1} 冊目失敗:`, error);
+                    alert(`登録 ${i + 1} 冊目でエラーが発生しました。`);
+                    break; // エラーが発生したらループを中断
+                }
+            }
+
+            if (successCount === quantity) {
+                document.getElementById('result').innerHTML = `${quantity}冊の本を登録しました。QRコードを生成しています...`;
+                // QRコード表示エリアをクリア
+                document.getElementById('qr-display-area').innerHTML = '';
+
+                // 登録された各本のIDに対してQRコードを生成
+                for (const bookId of registeredBookIds) {
+                    generateQrCodeForBook(bookId);
+                }
+            } else {
+                document.getElementById('result').innerHTML = `${successCount}冊の本を登録しましたが、一部失敗しました。`;
+            }
+
+            // フォームをクリア
             document.getElementById('tf1').value = "";
             document.getElementById('tf2').value = "";
             document.getElementById('tf3').value = "";
             document.getElementById('tf4').value = "";
             document.getElementById('tf5').value = "";
-            document.getElementById('tf6').value = "";
-            document.getElementById('tf7').value = "";
+            document.getElementById('tf_quantity').value = "1"; // 数量をリセット
+            document.getElementById('tf6').value = "0"; // ボタンで設定されるのでhiddenの値をリセット
+            document.getElementById('tf6_display').innerText = "0";
+            document.getElementById('tf7').value = "0"; // ボタンで設定されるのでhiddenの値をリセット
+            document.getElementById('tf7_display').innerText = "0";
+        }
+
+        // 単一のQRコードを生成する関数
+        function generateQrCodeForBook(bookId) {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.display = 'flex';
+            qrContainer.style.flexDirection = 'column';
+            qrContainer.style.alignItems = 'center';
+            qrContainer.style.marginBottom = '10px';
+
+            const qrDivId = `qr_${bookId}`;
+            const downloadLinkId = `download_${bookId}`;
+
+            qrContainer.innerHTML = `
+                <div id="${qrDivId}"></div>
+                <div style="margin-top: 5px; font-weight: bold;">${bookId}</div>
+                <a id="${downloadLinkId}" style="display:none; margin-top: 5px;">画像をダウンロード</a>
+            `;
+            document.getElementById('qr-display-area').appendChild(qrContainer);
+
+            const baseUrl = "https://a8123106.github.io/isapp3/qrRead.html";
+            const fullUrl = `${baseUrl}?bookId=${encodeURIComponent(bookId)}`;
+
+            const qrcode = new QRCode(qrDivId, {
+                text: fullUrl,
+                width: 70,
+                height: 70,
+                correctLevel: QRCode.CorrectLevel.L
+            });
+
+            // QRコードが描画されるまで少し待つ
+            setTimeout(() => {
+                const qrCanvas = document.querySelector(`#${qrDivId} canvas`);
+                if (qrCanvas) {
+                    const combinedCanvas = document.createElement('canvas');
+                    const ctx = combinedCanvas.getContext('2d');
+
+                    const fontSize = 18;
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    const textMetrics = ctx.measureText(bookId);
+                    const textWidth = textMetrics.width;
+                    const textHeight = fontSize;
+
+                    const padding = 10;
+                    combinedCanvas.width = Math.max(qrCanvas.width, textWidth + padding * 2);
+                    combinedCanvas.height = qrCanvas.height + textHeight + padding * 2;
+
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+
+                    const qrX = (combinedCanvas.width - qrCanvas.width) / 2;
+                    ctx.drawImage(qrCanvas, qrX, padding);
+
+                    ctx.fillStyle = 'black';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(bookId, combinedCanvas.width / 2, qrCanvas.height + padding * 2);
+
+                    const downloadLink = document.getElementById(downloadLinkId);
+                    downloadLink.href = combinedCanvas.toDataURL('image/png');
+                    downloadLink.download = `qrcode_${bookId}.png`;
+                    downloadLink.style.display = 'block';
+                }
+            }, 100);
         }
 
         async function topvalue() {
@@ -111,16 +214,19 @@
     著者: <input id='tf3' type='text'><br>
     出版社: <input id='tf4' type='text'><br>
     出版年: <input id='tf5' type='text'><br>
-    輪講用: <span id="tf6_display">0</span><input type="hidden" id="tf6" value="0"><button type="button"
-        onclick="setToggleValue('tf6', 0)">0 (輪講用)</button><button type="button" onclick="setToggleValue('tf6', 1)">1
-        (その他)</button><br>
+    登録冊数: <input id='tf_quantity' type='number' value="1" min="1"><br>
     持ち出し: <span id="tf7_display">0</span><input type="hidden" id="tf7" value="0"><button type="button"
         onclick="setToggleValue('tf7', 0)">0 (可)</button><button type="button" onclick="setToggleValue('tf7', 1)">1
         (不可)</button><br>
+    輪講用: <span id="tf6_display">0</span><input type="hidden" id="tf6" value="0"><button type="button"
+        onclick="setToggleValue('tf6', 0)">0 (輪講用)</button><button type="button" onclick="setToggleValue('tf6', 1)">1
+        (その他)</button><br>
 
     <button onclick="register()">登録</button>
 
     <p id="result"></p>
+
+    <div id="qr-display-area" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;"></div>
 
     <button onclick="topvalue()">TOP</button>
     <button onclick="location.href= `registerlist.html`">登録一覧</button>

@@ -9,114 +9,9 @@
     <script type="text/javascript" src="lib/osql.js"></script>
     <script type="text/javascript" src="lib/qrcode.min.js"></script>
 
-    <style>
-        #qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 20px auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-            width: fit-content;
-        }
-        #qr-id-text {
-            margin-top: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-    </style>
-
     <script>
-        console.log("qrcode.html script started."); // スクリプト開始のログ
-
-        osql.requireLogin(); // すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
-
-        async function init() {
-            var me = await osql.getMe();
-            var id = me.id;
-            console.log("User ID:", id); // ユーザーIDのログ
-            var fname = me.fname;
-            var lname = me.lname;
-            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
-        }
-
-        function CRTOR() {
-            console.log("CRTOR function called."); // CRTOR関数呼び出しのログ
-
-            var inp01 = document.getElementById('INP01');
-            var bookId = inp01.value;
-            console.log("Book ID for QR code:", bookId); // QRコード生成対象IDのログ
-
-            var baseUrl = "https://a8123106.github.io/isapp3/qrRead.html";
-            var fullUrl = `${baseUrl}?bookId=${encodeURIComponent(bookId)}`;
-            console.log("Full URL for QR code:", fullUrl); // QRコードに埋め込むURLのログ
-
-            // QRコードの出力先をクリア
-            document.getElementById('QR').innerHTML = '';
-            // ID表示要素もクリア
-            document.getElementById('qr-id-text').innerText = '';
-
-            // QRコード作成
-            var qrcode = new QRCode('QR', {
-                text: fullUrl,
-                width: 70,
-                height: 70,
-                correctLevel: QRCode.CorrectLevel.L
-            });
-
-            // QRコードが描画されるまで少し待つ
-            setTimeout(() => {
-                console.log("setTimeout callback executed."); // setTimeoutコールバック実行のログ
-                const qrCanvas = document.querySelector('#QR canvas');
-                const idText = bookId;
-
-                if (qrCanvas) {
-                    console.log("QR Canvas found. Combining image."); // Canvasが見つかったログ
-                    const combinedCanvas = document.createElement('canvas');
-                    const ctx = combinedCanvas.getContext('2d');
-
-                    // フォント設定（IDの表示に影響）
-                    const fontSize = 18;
-                    ctx.font = `bold ${fontSize}px Arial`;
-                    const textMetrics = ctx.measureText(idText);
-                    const textWidth = textMetrics.width;
-                    const textHeight = fontSize; // おおよその高さ
-
-                    // Canvasのサイズを計算
-                    const padding = 10; // QRコードとテキストの間のパディング
-                    combinedCanvas.width = Math.max(qrCanvas.width, textWidth + padding * 2);
-                    combinedCanvas.height = qrCanvas.height + textHeight + padding * 2;
-
-                    // 背景を白で塗りつぶす
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
-
-                    // QRコードを描画
-                    const qrX = (combinedCanvas.width - qrCanvas.width) / 2;
-                    ctx.drawImage(qrCanvas, qrX, padding);
-
-                    // IDテキストを描画
-                    ctx.fillStyle = 'black';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    ctx.fillText(idText, combinedCanvas.width / 2, qrCanvas.height + padding * 2);
-
-                    // ダウンロードリンクを作成
-                    const downloadLink = document.getElementById('download-qr');
-                    downloadLink.href = combinedCanvas.toDataURL('image/png');
-                    downloadLink.download = `qrcode_${bookId}.png`;
-                    downloadLink.style.display = 'block'; // リンクを表示
-
-                    // QRコードの下にIDテキストを表示
-                    document.getElementById('qr-id-text').innerText = idText;
-                } else {
-                    console.warn("QR Canvas not found after timeout."); // Canvasが見つからなかった警告
-                }
-            }, 100); // QRコードの描画を待つための短い遅延
-        }
-
+        osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
         $().ready(async function () {
-            console.log("Document ready. Initializing..."); // ドキュメント準備完了のログ
             init();
             // URLパラメータからbookIdを取得
             var bookIdFromUrl = osql.getParam('bookId');
@@ -125,6 +20,42 @@
                 CRTOR(); // bookIdがあれば自動でQRコードを生成
             }
         });
+
+        async function init() {
+            var me = await osql.getMe();
+            var id = me.id
+            console.log(id);
+            var fname = me.fname;
+            var lname = me.lname;
+            document.getElementById('welcome').innerHTML = 'ようこそ' + fname + lname + 'さん';
+
+        }
+
+        //new QRCode(document.getElementById("qrcode"), "index.html.");
+        // 読込後
+        function CRTOR() {
+            // 入力欄の要素を取得
+            var inp01 = document.getElementById('INP01');
+
+            // 入力されたIDを取得
+            var bookId = inp01.value;
+            // 基本となるURLを定義 (新しい行)
+            var baseUrl = "https://a8123106.github.io/isapp3/qrRead.html";
+            // 変更点3: bookIdをURLパラメータとして含んだ完全なURLを構築 (新しい行)
+            var fullUrl = `${baseUrl}?bookId=${encodeURIComponent(bookId)}`;
+            // QRコードの出力先をクリア
+            document.getElementById('QR').textContent = '';
+            // QRコード作成
+            var qrcode = new QRCode('QR', {
+                text: fullUrl,
+                width: 70,
+                height: 70,
+                correctLevel: QRCode.CorrectLevel.L
+            });
+
+        };
+
+
     </script>
 
 </head>
@@ -139,11 +70,7 @@
 
     <input type="text" class="input" value="" id="INP01" placeholder="IDを入力してください。">
     <button onclick="CRTOR()">QRコード生成</button>
-    <div id="qr-container">
-        <div id="QR"></div>
-        <div id="qr-id-text"></div>
-        <a id="download-qr" style="display:none;">画像をダウンロード</a>
-    </div>
+    <div id="QR" class="container m-4 is-justify-content-center is-flex"></div>
     <br><br><br> <button onclick="location.href= `index.html`">topに戻る</button>
 
 </body>

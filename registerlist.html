@@ -33,7 +33,21 @@
         }
 
         async function execSelect() {
-            var sql = 'select * from Books';
+            let sql = 'select * from Books';
+            const conditions = [];
+
+            const searchDiscussed = document.getElementById('search_discussed').value;
+
+            if (searchDiscussed !== '') {
+                conditions.push(`discussed = ${searchDiscussed}`);
+            }
+
+            if (conditions.length > 0) {
+                sql += ' WHERE ' + conditions.join(' AND ');
+            }
+
+            console.log("SQL Query:", sql); // 生成されたSQLクエリをコンソールで確認
+
             var objects = await osql.connect(sql);
             console.log(objects);
             var html = '';
@@ -93,7 +107,17 @@
 
     </div>
     <hr>
-    <button onclick="qrcode()">QRコード作成</button>
+
+    <div>
+        輪講用: 
+        <select id="search_discussed">
+            <option value="">すべて</option>
+            <option value="0">0 (輪講用)</option>
+            <option value="1">1 (その他)</option>
+        </select><br>
+        <button onclick="execSelect()">検索</button>
+    </div>
+    <br>
 
     <div id="result"></div>
 
